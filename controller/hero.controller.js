@@ -1,11 +1,32 @@
 const Hero = require("../model/hero.model");
 const slug = require("slugify");
+const uploadToCloudinary = require("../utili/uploads");
 
 exports.createHero = async (req, res) => {
   const { name, jopDesc, desc, tag } = req.body;
 
-  const img = req.files?.img?.[0]?.path;
-  const cv = req.files?.cv?.[0]?.path;
+  let img = null;
+  let cv = null;
+
+  if (req.files?.img?.[0]) {
+    const result = await uploadToCloudinary(
+      req.files.img[0],
+      "jana-portfolio",
+      "image",
+    );
+
+    img = result.secure_url;
+  }
+
+  if (req.files?.cv?.[0]) {
+    const result = await uploadToCloudinary(
+      req.files.cv[0],
+      "jana-portfolio",
+      "image",
+    );
+
+    cv = result.secure_url;
+  }
 
   const hero = await Hero.create({
     name,
@@ -13,8 +34,8 @@ exports.createHero = async (req, res) => {
     tag,
     jopDesc,
     desc,
-    img: img ? `/uploads/${img}` : null,
-    cv: cv ? `/uploads/${cv}` : null,
+    img,
+    cv,
   });
 
   res.status(201).json({
@@ -30,9 +51,36 @@ exports.getHero = async (req, res) => {
 
 exports.updateHero = async (req, res) => {
   const { slug } = req.params;
-  const hero = await Hero.findOneAndUpdate({ slug }, req.body, {
+
+  const updateData = {
+    ...req.body,
+  };
+
+  if (req.files?.img?.[0]) {
+    const result = await uploadToCloudinary(
+      req.files.img[0],
+      "jana-portfolio",
+      "image",
+    );
+
+    updateData.img = result.secure_url;
+  }
+
+  if (req.files?.cv?.[0]) {
+    const result = await uploadToCloudinary(
+      req.files.cv[0],
+      "jana-portfolio",
+      "auto",
+    );
+
+    updateData.cv = result.secure_url;
+  }
+
+  const hero = await Hero.findOneAndUpdate({ slug }, updateData, {
     new: true,
+    runValidators: true,
   });
+
   res.status(200).json({
     message: "hero updated successfully",
     data: hero,

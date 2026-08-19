@@ -1,10 +1,21 @@
 const Project = require("../model/project.model");
 const slug = require("slugify");
+const uploadToCloudinary = require("../utili/uploads");
 
 exports.createProject = async (req, res) => {
   const { title, desc, tech, githubLink, liveDemo } = req.body;
 
-  const img = req.file?.path;
+  let img = null;
+
+  if (req.file) {
+    const result = await uploadToCloudinary(
+      req.file,
+      "jana-portfolio/projects",
+      "image",
+    );
+
+    img = result.secure_url;
+  }
 
   const project = await Project.create({
     title,
@@ -13,7 +24,7 @@ exports.createProject = async (req, res) => {
     tech,
     githubLink,
     liveDemo,
-    img: img || null,
+    img,
   });
 
   res.status(201).json({
@@ -23,17 +34,35 @@ exports.createProject = async (req, res) => {
 };
 
 exports.updateProject = async (req, res) => {
-  const { slug } = req.params;
+  const { slug: projectSlug } = req.params;
+
+  const updateData = {
+    ...req.body,
+  };
 
   if (req.file) {
-    updateData.img = req.file.path;
+    const result = await uploadToCloudinary(
+      req.file,
+      "jana-portfolio/projects",
+      "image",
+    );
+
+    updateData.img = result.secure_url;
   }
 
-  const project = await Project.findOneAndUpdate({ slug }, req.body, {
-    new: true,
-  });
+  const project = await Project.findOneAndUpdate(
+    { slug: projectSlug },
+    updateData,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
 
-  res.status(200).json({ message: "project updated", data: project });
+  res.status(200).json({
+    message: "project updated",
+    data: project,
+  });
 };
 
 exports.deleteProject = async (req, res) => {
