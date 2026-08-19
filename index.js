@@ -44,5 +44,4 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-console.log("DB_URI exists:", !!process.env.DB_URI);
 module.exports = app;
