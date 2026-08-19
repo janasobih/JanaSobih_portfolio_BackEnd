@@ -1,6 +1,8 @@
 const multer = require("multer");
-
 const path = require("path");
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+
+const cloudinary = require("../config/cloudinary.config");
 
 const fileFilter = (req, file, cb) => {
   const ext = path.extname(file.originalname).toLowerCase();
@@ -23,18 +25,20 @@ const fileFilter = (req, file, cb) => {
   cb(null, true);
 };
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + "_" + file.originalname);
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: "jana-portfolio",
+    allowed_formats: ["jpg", "png", "jpeg", "pdf"],
   },
 });
 
 const MB = 1024 * 1024;
+
 module.exports = multer({
   storage,
   fileFilter,
-  limits: { fileSize: 2 * MB },
+  limits: {
+    fileSize: 2 * MB,
+  },
 });

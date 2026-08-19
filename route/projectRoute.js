@@ -8,7 +8,7 @@ const {
   getOneProjects,
   getAllProjects,
 } = require("../controller/projects.controller");
-const upload = require("../utili/uploads");
+const upload = require("../middleware/multer.middleware");
 
 router.get("/", getAllProjects);
 

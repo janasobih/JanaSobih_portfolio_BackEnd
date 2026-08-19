@@ -4,7 +4,7 @@ const slug = require("slugify");
 exports.createProject = async (req, res) => {
   const { title, desc, tech, githubLink, liveDemo } = req.body;
 
-  const img = req.file?.filename;
+  const img = req.file?.path;
 
   const project = await Project.create({
     title,
@@ -13,7 +13,7 @@ exports.createProject = async (req, res) => {
     tech,
     githubLink,
     liveDemo,
-    img: img ? `/uploads/${img}` : null,
+    img: img || null,
   });
 
   res.status(201).json({
@@ -24,6 +24,10 @@ exports.createProject = async (req, res) => {
 
 exports.updateProject = async (req, res) => {
   const { slug } = req.params;
+
+  if (req.file) {
+    updateData.img = req.file.path;
+  }
 
   const project = await Project.findOneAndUpdate({ slug }, req.body, {
     new: true,

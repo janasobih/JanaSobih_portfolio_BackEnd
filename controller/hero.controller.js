@@ -4,8 +4,8 @@ const slug = require("slugify");
 exports.createHero = async (req, res) => {
   const { name, jopDesc, desc, tag } = req.body;
 
-  const img = req.files?.img?.[0]?.filename;
-  const cv = req.files?.cv?.[0]?.filename;
+  const img = req.files?.img?.[0]?.path;
+  const cv = req.files?.cv?.[0]?.path;
 
   const hero = await Hero.create({
     name,

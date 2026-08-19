@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const upload = require("../utili/uploads");
+const upload = require("../middleware/multer.middleware");
 
 const {
   createHero,
