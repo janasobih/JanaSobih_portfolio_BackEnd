@@ -38,10 +38,19 @@ app.use((req, res, next) => {
 
 app.use(errorHandler);
 
-if (process.env.NODE_ENV !== "production") {
-  app.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-  });
-}
+const startServer = async () => {
+  try {
+    await connectDB();
+
+    app.listen(port, () => {
+      console.log(`Server running on port ${port}`);
+    });
+  } catch (error) {
+    console.error("Failed to start server:", error.message);
+    process.exit(1);
+  }
+};
+
+startServer();
 
 module.exports = app;
